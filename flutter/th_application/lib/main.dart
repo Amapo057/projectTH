@@ -3,6 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
 
+String ipS = "192.168.56.1";
+String ipH = '192.168.0.4';
+
 void main() {
   runApp(const MainApp());
 }
@@ -25,12 +28,12 @@ class _MainAppState extends State<MainApp> {
 
   // 소켓 연결 시도
   // async로 시간이 걸리는 작업의 포함여부 표시
-  void _connectToServer() async{
+  void _connectToServer() async {
     try {
       print("try connect server");
 
       // await으로 비동기 연결
-      channel = await Socket.connect('192.168.0.4', 5000);
+      channel = await Socket.connect(ipS, 5000);
 
       print("connect complete");
 
@@ -39,7 +42,7 @@ class _MainAppState extends State<MainApp> {
         serverMessage = "connect complete ";
       });
 
-      channel!.listen((Uint8List data){
+      channel!.listen((Uint8List data) {
         String msg = utf8.decode(data);
         print("listen server: $msg");
 
@@ -48,7 +51,7 @@ class _MainAppState extends State<MainApp> {
           Map<String, dynamic> jsonData = jsonDecode(msg);
 
           // json의 타입 확인 후 리스트로 나누기
-          if (jsonData['type'] == 'HOLE_CARDS'){
+          if (jsonData['type'] == 'HOLE_CARDS') {
             List<dynamic> cards = jsonData['cards'];
 
             String suit1 = cards[0]['suit'];
@@ -58,24 +61,21 @@ class _MainAppState extends State<MainApp> {
               serverMessage = "recv card!\n $suit1 $rank1";
             });
           }
-        }
-        catch (e){
+        } catch (e) {
           debugPrint("pass");
         }
-      },);
-    }
-    catch(e){
+      });
+    } catch (e) {
       print("connect filed: $e");
     }
   }
 
   // 프로그램 종료시 종료
   @override
-  void dispose(){
+  void dispose() {
     channel?.close();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,10 @@ class _MainAppState extends State<MainApp> {
                 child: Text(
                   serverMessage,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 30),
