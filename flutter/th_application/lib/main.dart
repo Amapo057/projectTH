@@ -5,39 +5,40 @@ import 'dart:convert';
 
 String ipS = "192.168.56.1";
 String ipH = '192.168.0.4';
+String ipNow = ipH;
 
 void main() {
   runApp(const MainApp());
 }
 
-// StatefulWidgetÀ¸·Î º¯È­°¡´ÉÇÏµµ·Ï º¯°æ
+// StatefulWidgetìœ¼ë¡œ ë³€í™”ê°€ëŠ¥í•˜ë„ë¡ ë³€ê²½
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
-  // ¸í½ÃÀûÀÎ ¿À¹ö¶óÀÌµå
+  // ëª…ì‹œì ì¸ ì˜¤ë²„ë¼ì´ë“œ
   @override
-  // ½ÇÁ¦ »óÅÂ¸¦°ü¸®ÇÒ state»ı¼º
+  // ì‹¤ì œ ìƒíƒœë¥¼ê´€ë¦¬í•  stateìƒì„±
   State<MainApp> createState() => _MainAppState();
 }
 
 class _MainAppState extends State<MainApp> {
-  // ¹®ÀÚ¿­ ¼±¾ğ
+  // ë¬¸ìì—´ ì„ ì–¸
   String serverMessage = "Server Connecting...";
-  // ¼ÒÄÏ ¼±¾ğ, ?·Î null ¿©ºÎ Çã¿ë
+  // ì†Œì¼“ ì„ ì–¸, ?ë¡œ null ì—¬ë¶€ í—ˆìš©
   Socket? channel;
 
-  // ¼ÒÄÏ ¿¬°á ½Ãµµ
-  // async·Î ½Ã°£ÀÌ °É¸®´Â ÀÛ¾÷ÀÇ Æ÷ÇÔ¿©ºÎ Ç¥½Ã
+  // ì†Œì¼“ ì—°ê²° ì‹œë„
+  // asyncë¡œ ì‹œê°„ì´ ê±¸ë¦¬ëŠ” ì‘ì—…ì˜ í¬í•¨ì—¬ë¶€ í‘œì‹œ
   void _connectToServer() async {
     try {
       print("try connect server");
 
-      // awaitÀ¸·Î ºñµ¿±â ¿¬°á
-      channel = await Socket.connect(ipS, 5000);
+      // awaitìœ¼ë¡œ ë¹„ë™ê¸° ì—°ê²°
+      channel = await Socket.connect(ipNow, 5000);
 
       print("connect complete");
 
-      // ¿¬°á ¼º°ø½Ã È­¸é °»½Å
+      // ì—°ê²° ì„±ê³µì‹œ í™”ë©´ ê°±ì‹ 
       setState(() {
         serverMessage = "connect complete ";
       });
@@ -47,10 +48,10 @@ class _MainAppState extends State<MainApp> {
         print("listen server: $msg");
 
         try {
-          // ¼­¹ö·ÎºÎÅÍ ¹ŞÀº json µğÄÚµå
+          // ì„œë²„ë¡œë¶€í„° ë°›ì€ json ë””ì½”ë“œ
           Map<String, dynamic> jsonData = jsonDecode(msg);
 
-          // jsonÀÇ Å¸ÀÔ È®ÀÎ ÈÄ ¸®½ºÆ®·Î ³ª´©±â
+          // jsonì˜ íƒ€ì… í™•ì¸ í›„ ë¦¬ìŠ¤íŠ¸ë¡œ ë‚˜ëˆ„ê¸°
           if (jsonData['type'] == 'HOLE_CARDS') {
             List<dynamic> cards = jsonData['cards'];
 
@@ -70,7 +71,7 @@ class _MainAppState extends State<MainApp> {
     }
   }
 
-  // ÇÁ·Î±×·¥ Á¾·á½Ã Á¾·á
+  // í”„ë¡œê·¸ë¨ ì¢…ë£Œì‹œ ì¢…ë£Œ
   @override
   void dispose() {
     channel?.close();
@@ -80,37 +81,53 @@ class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Scaffold ·¹ÀÌ¾Æ¿ô »ç¿ë
+      // Scaffold ë ˆì´ì•„ì›ƒ ì‚¬ìš©
       home: Scaffold(
-        // Å¸ÀÌÆ² ´Ş±â
+        // íƒ€ì´í‹€ ë‹¬ê¸°
         appBar: AppBar(title: const Text("Project TH build")),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  serverMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+        body: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      serverMessage,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: (){
+                      print("connect Try");
+                      _connectToServer();
+                    },
+                    child: const Text("server Connect"),
+                  )
+                ],
               ),
-              const SizedBox(height: 30),
-
-              // ¿¬°á ½Ãµµ ¹öÆ°
-              ElevatedButton(
-                onPressed: () {
-                  print("connect Try");
-                  _connectToServer();
-                },
-                child: const Text("server Connect"),
-              ),
-            ],
-          ),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Text("Card 1"),
+                    SizedBox(width: 8),
+                    Text("Card 2"),
+                  ],
+                )
+              )
+            )
+          ],
         ),
       ),
     );
