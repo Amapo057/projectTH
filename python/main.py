@@ -92,7 +92,7 @@ def start_server():
 
         game_data = {
             "type": "HOLE_CARDS",
-            "cards": [card1.to_dict(), card2.to_dict()]
+            "cards": [card1.to_dict()]
         }
 
         # 카드 정보 json으로 변경 후 utf-8로 전송

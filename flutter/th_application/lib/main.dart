@@ -10,6 +10,46 @@ void main() {
   runApp(const MainApp());
 }
 
+class Card{
+  // final로 이후 선언 후 수정 불가하도록 설정
+  final int suit;
+  final int rank;
+  // this.suit으로 바로 인자로 받은걸 suit에 넣기
+  // 생성자
+  Card(this.suit, this.rank);
+
+  // factory로 json을 분리하고 생성자 호출
+  // .fromJson으로 이름 붙이기
+  factory Card.fromJson(Map<String, dynamic> json){
+    return Card(json['suit'], json['rank']);
+  }
+
+  // 값 아이콘으로 변환
+  String toIcon(int suit) {
+    // 스위치문으로 알아서리턴
+    return switch (suit) {
+      1 => '♠',
+      2 => '♥',
+      3 => '♦',
+      4 => '♣',
+      _ => '*',
+    };
+  }
+  
+  // rank 문자로 변환
+  String toFace(int rank){
+    return switch (rank){
+      11 => "J",
+      12 => "Q",
+      13 => "K",
+      14 => "A",
+      _ => rank.toString(),
+    };
+  }
+
+  String get 
+}
+
 // StatefulWidget으로 변화가능하도록 변경
 class MainApp extends StatefulWidget {
   const MainApp({super.key});
@@ -28,8 +68,8 @@ class _MainAppState extends State<MainApp> {
   // 연결 확인용 변수 선언
   bool _isConnected = false;
   // 내 카드 변수
-  String myCard1 = "empty";
-  String myCard2 = "empty";
+  Card? myCard1;
+  Card? myCard2;
 
   // 소켓 연결 시도
   // async로 시간이 걸리는 작업의 포함여부 표시
@@ -48,7 +88,9 @@ class _MainAppState extends State<MainApp> {
         _isConnected = true;
       });
 
+      // 수신 받기
       channel!.listen((Uint8List data) {
+        // 메세지 디코드
         String msg = utf8.decode(data);
         print("listen server: $msg");
 
@@ -59,17 +101,13 @@ class _MainAppState extends State<MainApp> {
           // json의 타입 확인 후 리스트로 나누기
           if (jsonData['type'] == 'HOLE_CARDS') {
             List<dynamic> cards = jsonData['cards'];
-
-            String suit1 = toIcon(cards[0]['suit']);
-            int rank1 = cards[0]['rank'];
-
-            String suit2 = toIcon(cards[1]['suit']);
-            int rank2 = cards[1]['rank'];
+            
+            // 생성자 호출해 객체 생성
+            Card newCard1 = Card.fromJson(cards[0]);
 
             setState(() {
               serverMessage = "connect success";
-              myCard1 = "$suit1 $rank1";
-              myCard2 = "$suit2 $rank2";
+              myCard1 = newCard1;
             });
           }
         } catch (e) {
@@ -79,18 +117,6 @@ class _MainAppState extends State<MainApp> {
     } catch (e) {
       print("connect filed: $e");
     }
-  }
-
-  // 값 아이콘으로 변환
-  String toIcon(int suit) {
-    // 스위치문으로 알아서리턴
-    return switch (suit) {
-      1 => '♠',
-      2 => '♥',
-      3 => '♦',
-      4 => '♣',
-      _ => '*',
-    };
   }
 
   // 프로그램 종료시 종료
@@ -218,7 +244,7 @@ class _MainAppState extends State<MainApp> {
                       ),
                       // 글자 생성
                       child: Text(
-                        myCard2,
+                        "None",
                         // 스타일로 색상과 굵게 설정
                         style: TextStyle(
                           color: Colors.red,
