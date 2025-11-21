@@ -27,6 +27,9 @@ class _MainAppState extends State<MainApp> {
   Socket? channel;
   // 연결 확인용 변수 선언
   bool _isConnected = false;
+  // 내 카드 변수
+  String myCard1 = "empty";
+  String myCard2 = "empty";
 
   // 소켓 연결 시도
   // async로 시간이 걸리는 작업의 포함여부 표시
@@ -57,11 +60,16 @@ class _MainAppState extends State<MainApp> {
           if (jsonData['type'] == 'HOLE_CARDS') {
             List<dynamic> cards = jsonData['cards'];
 
-            String suit1 = cards[0]['suit'];
+            String suit1 = toIcon(cards[0]['suit']);
             int rank1 = cards[0]['rank'];
 
+            String suit2 = toIcon(cards[1]['suit']);
+            int rank2 = cards[1]['rank'];
+
             setState(() {
-              serverMessage = "recv card!\n $suit1 $rank1";
+              serverMessage = "connect success";
+              myCard1 = "$suit1 $rank1";
+              myCard2 = "$suit2 $rank2";
             });
           }
         } catch (e) {
@@ -71,6 +79,18 @@ class _MainAppState extends State<MainApp> {
     } catch (e) {
       print("connect filed: $e");
     }
+  }
+
+  // 값 아이콘으로 변환
+  String toIcon(int suit) {
+    // 스위치문으로 알아서리턴
+    return switch (suit) {
+      1 => '♠',
+      2 => '♥',
+      3 => '♦',
+      4 => '♣',
+      _ => '*',
+    };
   }
 
   // 프로그램 종료시 종료
@@ -141,15 +161,72 @@ class _MainAppState extends State<MainApp> {
               ),
             ),
             Align(
+              // 아래 오른쪽에 배치
               alignment: Alignment.bottomRight,
               child: Padding(
+                // 여유 공간 잡기
                 padding: const EdgeInsets.all(16.0),
+                // 내부 요소들 행으로 배치
                 child: Row(
+                  // 축 사이즈 작게
                   mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text("Card 1"),
-                    SizedBox(width: 8),
-                    Text("Card 2"),
+                  children: [
+                    // 컨테이너 생성
+                    Container(
+                      // 컨테이너 크기 고정
+                      width: 110.0,
+                      height: 180.0,
+                      // child 위치 고정
+                      alignment: Alignment.center,
+                      // 박스 장식 생성
+                      decoration: BoxDecoration(
+                        // 외각선 설정
+                        border: Border.all(color: Colors.blue, width: 2.0),
+                        // 둥글게 깍기
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      // 글자와 공간 여백 설정
+                      // padding: const EdgeInsets.symmetric(
+                      //   horizontal: 16.0,
+                      //   vertical: 50.0,
+                      // ),
+                      // 글자 생성
+                      child: Text(
+                        myCard1,
+                        // 스타일로 색상과 굵게 설정
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 15),
+                    // 컨테이너 생성
+                    Container(
+                      // 컨테이너 크기 고정
+                      width: 110.0,
+                      height: 180.0,
+                      // child 위치 고정
+                      alignment: Alignment.center,
+                      // 박스 장식 생성
+                      decoration: BoxDecoration(
+                        // 외각선 설정
+                        border: Border.all(color: Colors.red, width: 2.0),
+                        // 둥글게 깍기
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      // 글자 생성
+                      child: Text(
+                        myCard2,
+                        // 스타일로 색상과 굵게 설정
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -14,6 +14,7 @@ class Suit(IntEnum):
     CLUB = 4
 
 class Card:
+    # 초기화, 형 힌트
     def __init__(self, suit: Suit, rank: int):
         # 무늬 초기화
         self.suit = suit
@@ -29,10 +30,12 @@ class Card:
             displayRank = 'K'
         elif self.rank == 14:
             displayRank = 'A'
-        return f"{self.suit} {displayRank}"
+        # suit.name으로 Suit의 이름 꺼냄
+        return f"{self.suit.name} {displayRank}"
     def to_dict(self):
         # 딕셔너리로 변환해 반환
-        return {"suit":self.suit, "rank":self.rank}
+        # suit.value로 Suit의 값 꺼냄
+        return {"suit":self.suit.value, "rank":self.rank}
 
 class Deck:
     def __init__(self):
