@@ -1,19 +1,26 @@
 import socket
 import random
 import json
+from enum import IntEnum
 
 HOST = '0.0.0.0'  
 PORT = 5000
 BUFFSIZE = 1024
 
+class Suit(IntEnum):
+    SPADE = 1
+    HEART = 2
+    DIAMOND = 3
+    CLUB = 4
+
 class Card:
-    def __init__(self, suit, rank):
+    def __init__(self, suit: Suit, rank: int):
         # 무늬 초기화
         self.suit = suit
         self.rank = rank
     def __str__(self):
         # 만약 수가 문양이라면 문양으로 바꿔서 출력
-        displayRank = self.rank
+        displayRank = str(self.rank)
         if self.rank == 11:
             displayRank = 'J'
         elif self.rank == 12:
@@ -30,9 +37,7 @@ class Card:
 class Deck:
     def __init__(self):
         # 클래스 만들며 리스트 생성
-        self.cards = []
-        self.suitList = ["spade", "diamond", "heart", "clover"]
-        
+        self.cards = []        
         self.make_deck()
     
     # 덱 생성
@@ -40,7 +45,8 @@ class Deck:
         # 리스트에 카드 만들어 삽입
         # 리스트 초기화
         # self.cards = []
-        for i in self.suitList:
+        # suit는 반복 가능
+        for i in Suit:
             for j in range(2, 15):
                 card = Card(i, j)
                 self.cards.append(card)
