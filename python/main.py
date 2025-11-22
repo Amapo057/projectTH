@@ -2,11 +2,13 @@ import socket
 import random
 import json
 from enum import IntEnum
+import threading
 
 HOST = '0.0.0.0'  
 PORT = 5000
 BUFFSIZE = 1024
 
+# 상수 선언
 class Suit(IntEnum):
     SPADE = 1
     HEART = 2
@@ -71,6 +73,47 @@ class Deck:
     def __len__(self):
         return len(self.cards)
 
+# 스레드용 함수 선언
+# 덱과 경쟁상태를 막기위한 lock인자로 받음
+def clientHandler(clientSocket, addr, deck, deckLock):
+    print(f"new client: {addr}")
+
+    # 카드 준비
+    card1 = None
+    card2 = None
+
+    # with로 lock 사용시 반환
+    # 카드 뽑기
+    with deckLock:
+        card1 = deck.draw()
+        card2 = deck.draw()
+
+    # 카드 전송
+    # 카드 딕셔너리로 만들어서 josn 규격으로 변환
+    gameData = {
+        "type" : "HOLE_CARDS",
+        "cards" : [card1.to_dict(), card2.to_dict()]
+    }
+    # json 변환
+    jsonStr = json.dumps(gameData)
+    # 소켓을 통해 전송
+    clientSocket.send(jsonStr.encode("utf-8"))
+
+    # 연결용 while 반복문
+    while True:
+        try:
+            data = clientSocket.recv(BUFFSIZE)
+            if not data:
+                continue
+            msg = data.decode('utf-8')
+        except ConnectionResetError:
+            print(f"disconnect: {addr}")
+            break
+        except Exception as e:
+            print(f"Error: {addr}, {e}")
+            break
+    # 소켓 종료
+    clientSocket.close()
 def start_server():
     # 소켓 생성
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -80,32 +123,33 @@ def start_server():
     serverSocket.listen()
     print(f"[Server] {HOST}:{PORT} ready")
 
-    try:
-        # 접속 수락
-        clientSocket, addr = serverSocket.accept()
-        print(f"client accept {addr}")
+    # 덱 생성
+    deck = Deck()
+    # lock 생성
+    # 경쟁상태 방지
+    deckLock = threading.Lock()
 
-        deck = Deck()
+    # 서버 유지용 while 반복문
+    while True:
+        try:
+            # 접속자 클라이언트 소켓 생성
+            clientSocket, addr = serverSocket.accept()
+
+            # 스레드 생성 후 시작
+            thread = threading.Thread(target=clientHandler, args=(clientSocket, addr, deck, deckLock))
+            thread.start()
         
-        card1 = deck.draw()
-        card2 = deck.draw()
+        # 종료용 예외
+        except KeyboardInterrupt:
+            break
 
-        game_data = {
-            "type": "HOLE_CARDS",
-            "cards": [card1.to_dict()]
-        }
+        # 에러 발생시 알리고 서버는 지속
+        except Exception as e:
+            print(f"ERROR {e}")
+            continue
 
-        # 카드 정보 json으로 변경 후 utf-8로 전송
-        json_str = json.dumps(game_data)
-        clientSocket.send(json_str.encode("utf-8"))
-
-
-    except Exception as e:
-        print(f"ERROR {e}")
-    finally:
-        # 소켓 정리
-        clientSocket.close()
-        serverSocket.close()
+    # 소켓 정리
+    serverSocket.close()
 
 if __name__ == '__main__':
     start_server()
