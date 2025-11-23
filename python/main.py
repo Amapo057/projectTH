@@ -21,6 +21,7 @@ class Card:
         # 무늬 초기화
         self.suit = suit
         self.rank = rank
+    # 문자카드 변환
     def __str__(self):
         # 만약 수가 문양이라면 문양으로 바꿔서 출력
         displayRank = str(self.rank)
@@ -34,12 +35,14 @@ class Card:
             displayRank = 'A'
         # suit.name으로 Suit의 이름 꺼냄
         return f"{self.suit.name} {displayRank}"
+    # 카드 정보 딕셔너리로 변환해서 반환
     def to_dict(self):
-        # 딕셔너리로 변환해 반환
         # suit.value로 Suit의 값 꺼냄
         return {"suit":self.suit.value, "rank":self.rank}
 
+# 덱 클래스
 class Deck:
+    # 덱용 리스트 만들고 덱 만들면서 초기화
     def __init__(self):
         # 클래스 만들며 리스트 생성
         self.cards = []        
@@ -49,8 +52,8 @@ class Deck:
     def make_deck(self):
         # 리스트에 카드 만들어 삽입
         # 리스트 초기화
-        # self.cards = []
-        # suit는 반복 가능
+        self.cards = []
+        # 상수용 Suit는 반복 가능
         for i in Suit:
             for j in range(2, 15):
                 card = Card(i, j)
