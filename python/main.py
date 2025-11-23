@@ -106,6 +106,7 @@ def clientHandler(clientSocket, addr, deck, deckLock):
             if not data:
                 continue
             msg = data.decode('utf-8')
+            print(msg)
         except ConnectionResetError:
             print(f"disconnect: {addr}")
             break
@@ -141,6 +142,7 @@ def start_server():
         
         # 종료용 예외
         except KeyboardInterrupt:
+            print("end?")
             break
 
         # 에러 발생시 알리고 서버는 지속

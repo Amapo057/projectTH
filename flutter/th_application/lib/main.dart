@@ -3,8 +3,10 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:convert';
 
-const String ipS = "192.168.56.1";
-const String ipH = '192.168.0.4';
+// 
+// flutter run -d windows
+
+const String ip = "192.168.0.4";
 
 const double CARDSIZE = 70.0;
 
@@ -191,9 +193,9 @@ class _MainAppState extends State<MainApp> {
                                   // 입력된 IP를 가져옴 (앞뒤 공백 제거)
                                   final String inputIP = _ipController.text
                                       .trim();
-                                  // 입력값이 비어있으면 기본값(ipS) 사용, 아니면 입력값 사용
+                                  // 입력값이 비어있으면 기본값(ip) 사용, 아니면 입력값 사용
                                   final String targetIP = inputIP.isEmpty
-                                      ? ipS
+                                      ? ip
                                       : inputIP;
                                   _connectToServer(targetIP);
                                 },
@@ -228,7 +230,7 @@ class _MainAppState extends State<MainApp> {
                   ),
                 ),
               ),
-            )
+            ),
 
             // Visibillity로 연결된 상태에만 보이도록 설정
             Visibility(
